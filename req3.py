@@ -1,5 +1,4 @@
 import re
-
 inputf = open('raspisanie.yml', 'r', encoding = "utf-8")
 outputf = open('raspisanie2.json', 'w', encoding = "utf-8")
 curline = inputf.readline()

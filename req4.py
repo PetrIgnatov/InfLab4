@@ -1,5 +1,4 @@
 import re
-
 class data:
     def __init__(self, name: str, val: str):
         self.name = name
