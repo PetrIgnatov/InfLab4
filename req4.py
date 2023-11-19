@@ -31,6 +31,13 @@ class rasp:
         self.days = list()
     def addDay(self, d: day):
         self.days.append(d)
+    def printAll(self):
+        for x in self.days:
+            print (x.name + ":")
+            for y in x.lessons:
+                print(" " + y.name + ":")
+                for z in y.params:
+                    print("  " + z.name + ":" + z.val)
 def from_yaml(infile: list):
     regex_equal = re.compile(r"^((\s*[^\s:]+\s*):(\s*(\"[^\n]+\")|([^\n\s]+[^\n]+)|('[^\n]+')\s*))\n?$") #Строка с операцией присваивания
     regex_init = re.compile(r"^(\s*[^\s:]+\s*):\n?$") #Строка с операцией инициализации
@@ -39,6 +46,7 @@ def from_yaml(infile: list):
     curday = day()
     for s in infile:
         s = re.sub(r"\n+","",s)
+        s.rstrip()
         if regex_equal.match(s) != None:
             curline = s.strip()
             spl = curline.split(':', maxsplit = 1)
@@ -52,32 +60,46 @@ def from_yaml(infile: list):
                 if delta == 1:
                     if (len(curlesson.params) != 0):
                         curday.addLesson(curlesson)
-                        print("saved lesson")
                     curlesson = lesson()
                     curlesson.setName(stripped)
-                    print("creating lesson", stripped)
                 elif delta == 0:
                     if (len(curday.lessons) != 0):
                         raspisanie.addDay(curday)
-                        print("saved day")
                     curday = day()
                     curday.setName(stripped)
-                    print("created day", stripped)
         else:
             print("Undefined string")
+            print(s)
     if (len(curlesson.params) != 0):
         curday.addLesson(curlesson)
-        print("saved lesson")
     curlesson = lesson()
     if (len(curday.lessons) != 0):
         raspisanie.addDay(curday)
-        print("saved day")
     curday = day()
     return raspisanie
-inputf = open('raspisanie.yml', 'r', encoding = "utf-8")
+def to_json(r: rasp, filename: str):
+    outputf = open(filename, 'w', encoding = "utf-8")
+    outputf.write("{\n")
+    for d in r.days:
+        dname = d.name if d.name[0] == "\"" else "\""+d.name+"\""
+        outputf.write(" " + dname + ":\n")
+        outputf.write(" {\n")
+        for l in d.lessons:
+            lname = l.name if l.name[0] == "\"" else "\""+l.name+"\""
+            outputf.write("  " + lname + ":\n")
+            outputf.write("  {\n")
+            for p in l.params:
+                pname = p.name if p.name[0] == "\"" else "\"" + p.name + "\""
+                pval = p.val if p.val[0] == "\"" else "\"" + p.val + "\""
+                outputf.write("   " + pname + ":" + pval + "\n")
+            outputf.write("  }\n")
+        outputf.write(" }\n")
+    outputf.write("}\n")
+inputf = open('raspisanie1.yml', 'r', encoding = "utf-8")
 ymllist = list()
 curline = inputf.readline()
 while (curline):
     ymllist.append(curline)
     curline = inputf.readline()
 raspisanie = from_yaml(ymllist)
+to_json(raspisanie, "raspisanie3.json")
